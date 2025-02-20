@@ -1,0 +1,11 @@
+# codealpha_tasks
+def fibonacci_series(n):
+    a,b=0,1
+    for i in range(n):
+        yield a
+        a,b=b,a+b
+input_term = int(input("Enter the term of series-: "))
+print(f"The First{input_term}term of fibonacci series is a -: ")
+for number in fibonacci_series(input_term):
+    print(number, end=" ")
+
