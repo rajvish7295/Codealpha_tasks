@@ -1,0 +1,78 @@
+import random
+from colorama import Fore, Style, init
+
+init(autoreset=True)
+
+
+CATEGORIES = {
+    "Animals": ["elephant", "giraffe", "kangaroo", "penguin", "dolphin"],
+    "Countries": ["canada", "brazil", "japan", "australia", "germany"],
+    "Programming": ["python", "javascript", "algorithm", "function", "variable"]
+}
+
+def choose_word(category):
+    return random.choice(CATEGORIES[category])
+
+def display_word(word, guessed_letters):
+    return " ".join([letter if letter in guessed_letters else "_" for letter in word])
+
+def hangman():
+    print(Fore.GREEN + "Welcome to Hangman!")
+    print(Fore.CYAN + "Choose a category:")
+    for i, category in enumerate(CATEGORIES.keys(), 1):
+        print(Fore.YELLOW + f"{i}. {category}")
+    
+    
+    while True:
+        try:
+            choice = int(input(Fore.WHITE + "Enter the number of your choice: "))
+            if 1 <= choice <= len(CATEGORIES):
+                category = list(CATEGORIES.keys())[choice - 1]
+                break
+            else:
+                print(Fore.RED + "Invalid choice. Please try again.")
+        except ValueError:
+            print(Fore.RED + "Please enter a valid number.")
+
+    word = choose_word(category)
+    guessed_letters = set()
+    attempts = 6
+    score = 0
+
+    print(Fore.BLUE + f"\nYou've chosen the category: {category}")
+    print(Fore.MAGENTA + display_word(word, guessed_letters))
+
+    while attempts > 0:
+        guess = input(Fore.WHITE + "\nGuess a letter: ").lower()
+
+    
+        if len(guess) != 1 or not guess.isalpha():
+            print(Fore.RED + "Please enter a single valid letter.")
+            continue
+        if guess in guessed_letters:
+            print(Fore.YELLOW + "You already guessed that letter!")
+            continue
+
+        guessed_letters.add(guess)
+
+        if guess not in word:
+            attempts -= 1
+            print("Wrong Word Please Try More word")
+          
+            if attempts == 0:
+                print(Fore.RED + f"Game over! The word was '{word}'.")
+                break
+        else:
+            print(Fore.GREEN + "Good guess!")
+            score += 10  
+
+        current_display = display_word(word, guessed_letters)
+        print(Fore.MAGENTA + current_display)
+
+        if "_" not in current_display:
+            print(Fore.GREEN + "Congratulations! You guessed the word!")
+            print(Fore.GREEN + f"Your final score is: {score}")
+            break
+
+
+hangman()
