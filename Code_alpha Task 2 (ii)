@@ -1,0 +1,142 @@
+import json
+from colorama import Fore, Style, init
+from tabulate import tabulate
+
+# Initialize colorama for colored output
+init(autoreset=True)
+
+# File to store student data
+DATA_FILE = "student_grades.json"
+
+
+def load_data():
+    """Load student data from a JSON file."""
+    try:
+        with open(DATA_FILE, "r") as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return {}
+
+
+def save_data(student_grades):
+    """Save student data to a JSON file."""
+    with open(DATA_FILE, "w") as file:
+        json.dump(student_grades, file, indent=4)
+
+
+def add_student(student_grades):
+    """Add a new student and their grades."""
+    name = input(Fore.CYAN + "Enter student name: " + Style.RESET_ALL)
+    if name in student_grades:
+        print(Fore.RED + "Student already exists!")
+        return
+
+    subjects = int(input(Fore.CYAN + f"How many subjects does {name} have? " + Style.RESET_ALL))
+    grades = []
+
+    for _ in range(subjects):
+        subject = input(Fore.CYAN + "Enter subject name: " + Style.RESET_ALL)
+        grade = float(input(Fore.CYAN + f"Enter grade for {subject}: " + Style.RESET_ALL))
+        grades.append((subject, grade))
+
+    student_grades[name] = grades
+    save_data(student_grades)
+    print(Fore.GREEN + f"{name} added successfully!")
+
+
+def calculate_averages(student_grades):
+    """Calculate average grades for all students."""
+    averages = {}
+    for name, grades in student_grades.items():
+        total = sum(grade for subject, grade in grades)
+        average = total / len(grades)
+        averages[name] = average
+    return averages
+
+
+def display_grades(student_grades, averages):
+    """Display all student grades in a table format."""
+    table = []
+    for name, grades in student_grades.items():
+        for subject, grade in grades:
+            table.append([name, subject, grade, f"{averages[name]:.2f}"])
+
+    headers = [Fore.YELLOW + "Name", "Subject", "Grade", "Average" + Style.RESET_ALL]
+    print(tabulate(table, headers=headers, tablefmt="pretty"))
+
+
+def search_student(student_grades):
+    """Search for a specific student's grades."""
+    name = input(Fore.CYAN + "Enter student name to search: " + Style.RESET_ALL)
+    if name in student_grades:
+        print(Fore.GREEN + f"\nGrades for {name}:")
+        for subject, grade in student_grades[name]:
+            print(f"{subject}: {grade}")
+    else:
+        print(Fore.RED + "Student not found!")
+
+
+def delete_student(student_grades):
+    """Delete a student's record."""
+    name = input(Fore.CYAN + "Enter student name to delete: " + Style.RESET_ALL)
+    if name in student_grades:
+        del student_grades[name]
+        save_data(student_grades)
+        print(Fore.GREEN + f"{name} deleted successfully!")
+    else:
+        print(Fore.RED + "Student not found!")
+
+
+def class_statistics(student_grades):
+    """Display class statistics (highest, lowest, and average grades)."""
+    if not student_grades:
+        print(Fore.RED + "No student data available!")
+        return
+
+    all_grades = [grade for grades in student_grades.values() for subject, grade in grades]
+    highest = max(all_grades)
+    lowest = min(all_grades)
+    average = sum(all_grades) / len(all_grades)
+
+    print(Fore.YELLOW + "\nClass Statistics:")
+    print(Fore.GREEN + f"Highest Grade: {highest}")
+    print(Fore.RED + f"Lowest Grade: {lowest}")
+    print(Fore.CYAN + f"Average Grade: {average:.2f}")
+
+
+def main_menu():
+    """Display the main menu."""
+    print(Fore.BLUE + "\n===== Student Grade Management System =====")
+    print(Fore.YELLOW + "1. Add Student")
+    print("2. Display Grades")
+    print("3. Search Student")
+    print("4. Delete Student")
+    print("5. Class Statistics")
+    print("6. Exit")
+
+
+def main():
+    student_grades = load_data()
+
+    while True:
+        main_menu()
+        choice = input(Fore.CYAN + "Enter your choice: " + Style.RESET_ALL)
+
+        if choice == '1':
+            add_student(student_grades)
+        elif choice == '2':
+            averages = calculate_averages(student_grades)
+            display_grades(student_grades, averages)
+        elif choice == '3':
+            search_student(student_grades)
+        elif choice == '4':
+            delete_student(student_grades)
+        elif choice == '5':
+            class_statistics(student_grades)
+        elif choice == '6':
+            print(Fore.GREEN + "Exiting the program. Goodbye!")
+            break
+        else:
+            print(Fore.RED + "Invalid choice. Please try again.")
+
+main()
