@@ -2,15 +2,14 @@ import json
 from colorama import Fore, Style, init
 from tabulate import tabulate
 
-# Initialize colorama for colored output
+
 init(autoreset=True)
 
-# File to store student data
 DATA_FILE = "student_grades.json"
 
 
 def load_data():
-    """Load student data from a JSON file."""
+   
     try:
         with open(DATA_FILE, "r") as file:
             return json.load(file)
@@ -19,13 +18,13 @@ def load_data():
 
 
 def save_data(student_grades):
-    """Save student data to a JSON file."""
+   
     with open(DATA_FILE, "w") as file:
         json.dump(student_grades, file, indent=4)
 
 
 def add_student(student_grades):
-    """Add a new student and their grades."""
+   
     name = input(Fore.CYAN + "Enter student name: " + Style.RESET_ALL)
     if name in student_grades:
         print(Fore.RED + "Student already exists!")
@@ -45,7 +44,7 @@ def add_student(student_grades):
 
 
 def calculate_averages(student_grades):
-    """Calculate average grades for all students."""
+  
     averages = {}
     for name, grades in student_grades.items():
         total = sum(grade for subject, grade in grades)
@@ -55,7 +54,7 @@ def calculate_averages(student_grades):
 
 
 def display_grades(student_grades, averages):
-    """Display all student grades in a table format."""
+    
     table = []
     for name, grades in student_grades.items():
         for subject, grade in grades:
@@ -66,7 +65,7 @@ def display_grades(student_grades, averages):
 
 
 def search_student(student_grades):
-    """Search for a specific student's grades."""
+   
     name = input(Fore.CYAN + "Enter student name to search: " + Style.RESET_ALL)
     if name in student_grades:
         print(Fore.GREEN + f"\nGrades for {name}:")
@@ -77,7 +76,7 @@ def search_student(student_grades):
 
 
 def delete_student(student_grades):
-    """Delete a student's record."""
+  
     name = input(Fore.CYAN + "Enter student name to delete: " + Style.RESET_ALL)
     if name in student_grades:
         del student_grades[name]
@@ -88,7 +87,7 @@ def delete_student(student_grades):
 
 
 def class_statistics(student_grades):
-    """Display class statistics (highest, lowest, and average grades)."""
+   
     if not student_grades:
         print(Fore.RED + "No student data available!")
         return
