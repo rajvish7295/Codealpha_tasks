@@ -1,0 +1,90 @@
+import tkinter as tk
+import random
+from tkinter import messagebox
+import time
+
+# Constants
+ROWS, COLS = 4, 4  # 4x4 grid
+TIMER_LIMIT = 60  # seconds
+
+class MemoryGame:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Memory Puzzle Game Developed by Raj")
+        self.root.resizable(False, False)
+
+        self.symbols = list('🍎🍌🍒🍇🍓🥝🍍🍊') * 2  # 8 unique pairs
+        random.shuffle(self.symbols)
+
+        self.buttons = {}
+        self.flipped = []
+        self.matches = 0
+
+        self.start_time = time.time()
+
+        self.timer_label = tk.Label(root, text="Time left: 60", font=("Arial", 14))
+        self.timer_label.grid(row=0, column=0, columnspan=COLS)
+
+        self.build_grid()
+        self.update_timer()
+
+    def build_grid(self):
+        idx = 0
+        for r in range(1, ROWS + 1):
+            for c in range(COLS):
+                btn = tk.Button(self.root, text='❓', width=6, height=3,
+                                command=lambda idx=idx: self.flip_card(idx), font=("Arial", 20))
+                btn.grid(row=r, column=c, padx=5, pady=5)
+                self.buttons[idx] = {'button': btn, 'symbol': self.symbols[idx], 'flipped': False}
+                idx += 1
+
+    def flip_card(self, idx):
+        card = self.buttons[idx]
+        if card['flipped'] or len(self.flipped) == 2:
+            return
+        card['button'].config(text=card['symbol'])
+        card['flipped'] = True
+        self.flipped.append(idx)
+
+        if len(self.flipped) == 2:
+            self.root.after(1000, self.check_match)
+
+    def check_match(self):
+        i1, i2 = self.flipped
+        card1, card2 = self.buttons[i1], self.buttons[i2]
+
+        if card1['symbol'] == card2['symbol']:
+            self.matches += 1
+            if self.matches == len(self.symbols) // 2:
+                self.win_game()
+        else:
+            card1['button'].config(text='❓')
+            card2['button'].config(text='❓')
+            card1['flipped'] = False
+            card2['flipped'] = False
+
+        self.flipped = []
+
+    def update_timer(self):
+        time_left = TIMER_LIMIT - int(time.time() - self.start_time)
+        self.timer_label.config(text=f"Time left: {time_left}")
+        if time_left > 0:
+            self.root.after(1000, self.update_timer)
+        else:
+            self.end_game()
+
+    def end_game(self):
+        for btn in self.buttons.values():
+            btn['button'].config(state="disabled")
+        messagebox.showinfo("Time's Up!", " You ran out of time!")
+
+    def win_game(self):
+        for btn in self.buttons.values():
+            btn['button'].config(state="disabled")
+        messagebox.showinfo("Congratulations!", "You matched all pairs!")
+
+# Run the game
+if __name__ == "__main__":
+    root = tk.Tk()
+    game = MemoryGame(root)
+    root.mainloop()
